@@ -16,11 +16,11 @@ const postSchema = new mongoose.Schema(
       trim: true,
     },
 
-    authorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    // authorId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
   },
   {
     timestamps: true,

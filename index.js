@@ -4,7 +4,8 @@ import { connectDb } from "./config/db.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+import userRoutes from "./routes/userRoute.js"
+import postRoutes from "./routes/postRoute.js"
 // JSON middleware
 app.use(express.json());
 connectDb()
@@ -16,108 +17,108 @@ app.use((req, res, next) => {
   next();
 });
 
-// In-memory database
-let blogPosts = [];
 
 // Home Route
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Data Hub API",
+    message: "Welcome to Data Hub API for post",
   });
 });
-
+// routes
+app.use("/api/user", userRoutes)
+app.use("/api/post", postRoutes)
 // GET All Posts
-app.get("/posts", (req, res) => {
-  res.json(blogPosts);
-});
+// app.get("/posts", (req, res) => {
+//   res.json(blogPosts);
+// });
 
 // GET Post By ID
-app.get("/posts/:id", (req, res) => {
-  const id = Number(req.params.id);
+// app.get("/posts/:id", (req, res) => {
+//   const id = Number(req.params.id);
 
-  const post = blogPosts.find((item) => item.id === id);
+//   const post = blogPosts.find((item) => item.id === id);
 
-  if (!post) {
-    return res.status(404).json({
-      message: "Post Not Found",
-    });
-  }
+//   if (!post) {
+//     return res.status(404).json({
+//       message: "Post Not Found",
+//     });
+//   }
 
-  res.json(post);
-});
+//   res.json(post);
+// });
 
 // POST Create New Post
-app.post("/posts", (req, res) => {
-  const newPost = {
-    id: Number(req.body.id),
-    title: req.body.title,
-    content: req.body.content,
-  };
+// app.post("/posts", (req, res) => {
+//   const newPost = {
+//     id: Number(req.body.id),
+//     title: req.body.title,
+//     content: req.body.content,
+//   };
 
-  blogPosts.push(newPost);
+//   blogPosts.push(newPost);
 
-  res.status(201).json({
-    message: "Post Added Successfully",
-    data: newPost,
-  });
-});
+//   res.status(201).json({
+//     message: "Post Added Successfully",
+//     data: newPost,
+//   });
+// });
 
 // PUT Update Post
-app.put("/posts/:id", (req, res) => {
-  const id = Number(req.params.id);
+// app.put("/posts/:id", (req, res) => {
+//   const id = Number(req.params.id);
 
-  const post = blogPosts.find((item) => item.id === id);
+//   const post = blogPosts.find((item) => item.id === id);
 
-  if (!post) {
-    return res.status(404).json({
-      message: "Post Not Found",
-    });
-  }
+//   if (!post) {
+//     return res.status(404).json({
+//       message: "Post Not Found",
+//     });
+//   }
 
-  post.title = req.body.title;
-  post.content = req.body.content;
+//   post.title = req.body.title;
+//   post.content = req.body.content;
 
-  res.json({
-    message: "Post Updated Successfully",
-    data: post,
-  });
-});
+//   res.json({
+//     message: "Post Updated Successfully",
+//     data: post,
+//   });
+// });
 
 // DELETE Post
-app.delete("/posts/:id", (req, res) => {
-  const id = Number(req.params.id);
+// app.delete("/posts/:id", (req, res) => {
+//   const id = Number(req.params.id);
 
-  const post = blogPosts.find((item) => item.id === id);
+//   const post = blogPosts.find((item) => item.id === id);
 
-  if (!post) {
-    return res.status(404).json({
-      message: "Post Not Found",
-    });
-  }
+//   if (!post) {
+//     return res.status(404).json({
+//       message: "Post Not Found",
+//     });
+//   }
 
-  blogPosts = blogPosts.filter((item) => item.id !== id);
+//   blogPosts = blogPosts.filter((item) => item.id !== id);
 
-  res.json({
-    message: "Post Deleted Successfully",
-  });
-});
+//   res.json({
+//     message: "Post Deleted Successfully",
+//   });
+// });
 
 // Login Route
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+// app.post("/login", (req, res) => {
+//   const email = req.body.email;
+//   const password = req.body.password;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      message: "Email and Password are required",
-    });
-  }
+//   if (!email || !password) {
+//     return res.status(400).json({
+//       message: "Email and Password are required",
+//     });
+//   }
 
-  res.json({
-    message: "Login Successful",
-    token: "mock-jwt-token-123456",
-  });
-});
+//   res.json({
+//     message: "Login Successful",
+//     token: "mock-jwt-token-123456",
+//   });
+// });
 
 // Start Server
 app.listen(PORT, () => {
