@@ -6,9 +6,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 import userRoutes from "./routes/userRoute.js"
 import postRoutes from "./routes/postRoute.js"
+import cookieParser from "cookie-parser";
+
 // JSON middleware
 app.use(express.json());
-connectDb()
+connectDb();
+app.use(cookieParser());
 // Custom middleware
 app.use((req, res, next) => {
   console.log(
@@ -21,104 +24,14 @@ app.use((req, res, next) => {
 // Home Route
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Data Hub API for post",
+    message: "Welcome to Data Hub API for posts and auth",
   });
 });
 // routes
-app.use("/api/user", userRoutes)
-app.use("/api/post", postRoutes)
-// GET All Posts
-// app.get("/posts", (req, res) => {
-//   res.json(blogPosts);
-// });
+// app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
-// GET Post By ID
-// app.get("/posts/:id", (req, res) => {
-//   const id = Number(req.params.id);
-
-//   const post = blogPosts.find((item) => item.id === id);
-
-//   if (!post) {
-//     return res.status(404).json({
-//       message: "Post Not Found",
-//     });
-//   }
-
-//   res.json(post);
-// });
-
-// POST Create New Post
-// app.post("/posts", (req, res) => {
-//   const newPost = {
-//     id: Number(req.body.id),
-//     title: req.body.title,
-//     content: req.body.content,
-//   };
-
-//   blogPosts.push(newPost);
-
-//   res.status(201).json({
-//     message: "Post Added Successfully",
-//     data: newPost,
-//   });
-// });
-
-// PUT Update Post
-// app.put("/posts/:id", (req, res) => {
-//   const id = Number(req.params.id);
-
-//   const post = blogPosts.find((item) => item.id === id);
-
-//   if (!post) {
-//     return res.status(404).json({
-//       message: "Post Not Found",
-//     });
-//   }
-
-//   post.title = req.body.title;
-//   post.content = req.body.content;
-
-//   res.json({
-//     message: "Post Updated Successfully",
-//     data: post,
-//   });
-// });
-
-// DELETE Post
-// app.delete("/posts/:id", (req, res) => {
-//   const id = Number(req.params.id);
-
-//   const post = blogPosts.find((item) => item.id === id);
-
-//   if (!post) {
-//     return res.status(404).json({
-//       message: "Post Not Found",
-//     });
-//   }
-
-//   blogPosts = blogPosts.filter((item) => item.id !== id);
-
-//   res.json({
-//     message: "Post Deleted Successfully",
-//   });
-// });
-
-// Login Route
-// app.post("/login", (req, res) => {
-//   const email = req.body.email;
-//   const password = req.body.password;
-
-//   if (!email || !password) {
-//     return res.status(400).json({
-//       message: "Email and Password are required",
-//     });
-//   }
-
-//   res.json({
-//     message: "Login Successful",
-//     token: "mock-jwt-token-123456",
-//   });
-// });
+app.use("/api/post", postRoutes);
 
 // Start Server
 app.listen(PORT, () => {

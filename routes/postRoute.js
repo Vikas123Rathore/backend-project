@@ -1,9 +1,26 @@
 import express from "express";
-import { deletePost, getAllPsot, getPostbyId, postCreate, updatePost } from "../controllers/postController.js";
+
+import {
+  postCreate,
+  getAllPsot,
+  getPostbyId,
+  getTopRecentPosts,
+  updatePost,
+  deletePost,
+} from "../controllers/postController.js";
+
+import { protect } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-router.post("/create", postCreate);
-router.get("/getPosts",getAllPsot)
+
+// Protected routes
+router.post("/", protect, postCreate);
+router.put("/:id", protect, updatePost);
+router.delete("/:id", protect, deletePost);
+
+// Public routes
+router.get("/", getAllPsot);
+router.get("/top", getTopRecentPosts);
 router.get("/:id", getPostbyId);
-router.put("/:id", updatePost);
-router.delete("/:id",deletePost)
+
 export default router;
