@@ -1,8 +1,8 @@
 import Post from "../models/postModel.js";
 
-// ========================================
+
 // CREATE POST
-// ========================================
+
 export const postCreate = async (req, res) => {
   const { title, content } = req.body;
 
@@ -45,9 +45,8 @@ export const postCreate = async (req, res) => {
 };
 
 
-// ========================================
+
 // GET ALL POSTS
-// ========================================
 export const getAllPsot = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -68,9 +67,7 @@ export const getAllPsot = async (req, res) => {
 };
 
 
-// ========================================
 // GET POST BY ID
-// ========================================
 export const getPostbyId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -98,9 +95,7 @@ export const getPostbyId = async (req, res) => {
 };
 
 
-// ========================================
 // GET TOP 3 RECENT POSTS
-// ========================================
 export const getTopRecentPosts = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -122,9 +117,7 @@ export const getTopRecentPosts = async (req, res) => {
 };
 
 
-// ========================================
 // UPDATE POST
-// ========================================
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -178,9 +171,8 @@ export const updatePost = async (req, res) => {
 };
 
 
-// ========================================
 // DELETE POST
-// ========================================
+
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
