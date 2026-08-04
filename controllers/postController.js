@@ -1,42 +1,58 @@
 import Post from "../models/postModel.js";
+import uploadOnCloudinary from "../config/cloudinary.js";
 
 
 // CREATE POST
 
-export const postCreate = async (req, res) => {
-  const { title, content } = req.body;
 
+
+export const postCreate = async (req, res) => {
   try {
-    // Check authentication
+    const { title, content } = req.body;
+
     if (!req.userId) {
       return res.status(401).json({
         message: "User not authenticated",
       });
     }
 
-    // Check required fields
     if (!title || !content) {
       return res.status(400).json({
         message: "Title and content are required",
       });
     }
 
-    // User ID comes from JWT
-    const authorId = req.userId;
+    let image = "";
 
-    // Create post
+    // Upload image to Cloudinary if provided
+    if (req.file) {
+      image = await uploadOnCloudinary(req.file.path);
+
+      if (!image) {
+        return res.status(500).json({
+          message: "Image upload failed",
+        });
+      }
+    }
+
     const post = await Post.create({
       title,
       content,
-      authorId,
+      image,
+      authorId: req.userId,
     });
+
+    const populatedPost = await Post.findById(post._id).populate(
+      "authorId",
+      "name email"
+    );
 
     return res.status(201).json({
       message: "Post created successfully",
-      post,
+      post: populatedPost,
     });
   } catch (error) {
-    console.log("Error in creating post:", error);
+    console.error("Error in creating post:", error);
 
     return res.status(500).json({
       message: "Internal server error",

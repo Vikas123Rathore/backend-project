@@ -10,17 +10,22 @@ import {
 } from "../controllers/postController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
+import fileUpload from "../middleware/upload.js";
 
 const router = express.Router();
 
-// Protected routes
-router.post("/", protect, postCreate);
-router.put("/:id", protect, updatePost);
+// Protected Routes
+router.post("/", protect, fileUpload, postCreate);
+
+router.put("/:id", protect, fileUpload, updatePost);
+
 router.delete("/:id", protect, deletePost);
 
-// Public routes
+// Public Routes
 router.get("/", getAllPsot);
+
 router.get("/top", getTopRecentPosts);
+
 router.get("/:id", getPostbyId);
 
 export default router;

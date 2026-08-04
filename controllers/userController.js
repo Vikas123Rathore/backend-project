@@ -113,3 +113,49 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+// GET CURRENT USER
+export const currentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Current user fetched successfully",
+      user,
+    });
+  } catch (error) {
+    console.log("Error in current user:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+// LOGOUT USER
+export const logoutUser = (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return res.status(200).json({
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.log("Error in logout:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

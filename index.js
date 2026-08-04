@@ -1,25 +1,36 @@
 import express from "express";
 import dotenv from "dotenv";
-import { connectDb } from "./config/db.js";
-dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 5000;
-import userRoutes from "./routes/userRoute.js"
-import postRoutes from "./routes/postRoute.js"
+import cors from "cors";
 import cookieParser from "cookie-parser";
 
-// JSON middleware
-app.use(express.json());
+import { connectDb } from "./config/db.js";
+import userRoutes from "./routes/userRoute.js";
+import postRoutes from "./routes/postRoute.js";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Database Connection
 connectDb();
+
+// Middlewares
+app.use(
+  cors({
+    origin: "http://localhost:5173", // React/Vite frontend
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 app.use(cookieParser());
-// Custom middleware
+
+// Logger Middleware
 app.use((req, res, next) => {
-  console.log(
-    `${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`
-  );
+  console.log(`${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`);
   next();
 });
-
 
 // Home Route
 app.get("/", (req, res) => {
@@ -27,13 +38,12 @@ app.get("/", (req, res) => {
     message: "Welcome to Data Hub API for posts and auth",
   });
 });
-// routes
-// app.use("/api/users", userRoutes);
-app.use("/api/user", userRoutes);
 
+// API Routes
+app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
