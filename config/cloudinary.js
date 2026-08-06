@@ -1,29 +1,49 @@
-import { v2 as cloudinary } from 'cloudinary';
+import dotenv from "dotenv";
+dotenv.config();
 
-import fs from "fs"
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
-const uploadOnCloudinary = async (filepath) => {
+const isCloudinaryConfigured = Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+);
+
+if (isCloudinaryConfigured) {
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
+        api_secret: process.env.CLOUDINARY_API_SECRET,
     });
-    try {
-        if(!filepath){
-            return null}
-        const uploadResult = await cloudinary.uploader
-        .upload(filepath)
-        fs.unlinkSync(filepath)
-        return uploadResult.secure_url
-
-
-
-    } catch (error) {
-        fs.unlinkSync(filepath)
-        console.log(error)
-    }
 }
 
-export default uploadOnCloudinary
+const uploadOnCloudinary = async (filepath) => {
+    if (!isCloudinaryConfigured) {
+        console.warn("Cloudinary is not configured. Skipping image upload.");
+        return null;
+    }
 
-// by vikas rathore
+    try {
+        const result = await cloudinary.uploader.upload(filepath, {
+            folder: "posthub",
+            resource_type: "image",
+        });
+
+        if (fs.existsSync(filepath)) {
+            fs.unlinkSync(filepath);
+        }
+
+        return result.secure_url;
+    } catch (error) {
+        console.warn("Cloudinary upload failed, continuing without image:", error?.message || error);
+
+        if (fs.existsSync(filepath)) {
+            fs.unlinkSync(filepath);
+        }
+
+        return null;
+    }
+};
+
+export default uploadOnCloudinary;

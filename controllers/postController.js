@@ -29,9 +29,7 @@ export const postCreate = async (req, res) => {
       image = await uploadOnCloudinary(req.file.path);
 
       if (!image) {
-        return res.status(500).json({
-          message: "Image upload failed",
-        });
+        console.warn("Image upload failed or was skipped. Creating post without image.");
       }
     }
 
