@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
+// User Schema
 const userSchema = new mongoose.Schema(
   {
+    // User name
     name: {
       type: String,
       required: [true, "Name is required"],
@@ -10,6 +12,7 @@ const userSchema = new mongoose.Schema(
       maxlength: 50,
     },
 
+    // User email
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -19,11 +22,13 @@ const userSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Invalid email"],
     },
 
+    // User password
     password: {
       type: String,
       required: true,
     },
 
+    // References to user's posts
     posts: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -32,8 +37,10 @@ const userSchema = new mongoose.Schema(
     ],
   },
   {
+    // Add createdAt and updatedAt fields
     timestamps: true,
   }
 );
 
+// Export User Model
 export default mongoose.model("User", userSchema);

@@ -1,14 +1,14 @@
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import uploadOnCloudinary from "../config/cloudinary.js";
-
+// creating post controller
 export const postCreate = async (req, res) => {
   try {
     const { title, content } = req.body;
 
     if (!req.userId) {
       return res.status(401).json({
-        message: "User not authenticated",
+        message: "Please Login first",
       });
     }
 
@@ -19,7 +19,7 @@ export const postCreate = async (req, res) => {
     }
 
     let image = "";
-
+// uploading files or image on cloudinary
     if (req.file) {
       image = await uploadOnCloudinary(req.file.path);
     }
@@ -36,7 +36,7 @@ export const postCreate = async (req, res) => {
         posts: post._id,
       },
     });
-
+// post populating with user
     const populatedPost = await Post.findById(post._id).populate(
       "authorId",
       "name email"
@@ -54,7 +54,7 @@ export const postCreate = async (req, res) => {
     });
   }
 };
-
+// getting all post controller
 export const getAllPsot = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -74,7 +74,7 @@ export const getAllPsot = async (req, res) => {
   }
 };
 
-
+// getting post by id controller
 export const getPostbyId = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate(
@@ -101,27 +101,8 @@ export const getPostbyId = async (req, res) => {
   }
 };
 
-export const getTopRecentPosts = async (req, res) => {
-  try {
-    const posts = await Post.find()
-      .populate("authorId", "name email")
-      .sort({ createdAt: -1 })
-      .limit(3);
 
-    return res.status(200).json({
-      message: "Top recent posts fetched successfully",
-      posts,
-    });
-  } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-};
-
-
+// updating post controller
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,7 +110,7 @@ export const updatePost = async (req, res) => {
 
     if (!req.userId) {
       return res.status(401).json({
-        message: "User not authenticated",
+        message: "Please login account first",
       });
     }
 
@@ -182,7 +163,7 @@ export const updatePost = async (req, res) => {
     });
   }
 };
-
+// delete post controller
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
