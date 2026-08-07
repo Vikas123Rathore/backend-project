@@ -18,10 +18,18 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Invalid email"],
     },
-    password:{
-      type:String,
-      required:true
-    }
+
+    password: {
+      type: String,
+      required: true,
+    },
+
+    posts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
   {
     timestamps: true,

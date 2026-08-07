@@ -1,10 +1,6 @@
 import Post from "../models/postModel.js";
+import User from "../models/userModel.js";
 import uploadOnCloudinary from "../config/cloudinary.js";
-
-
-// CREATE POST
-
-
 
 export const postCreate = async (req, res) => {
   try {
@@ -24,13 +20,8 @@ export const postCreate = async (req, res) => {
 
     let image = "";
 
-    // Upload image to Cloudinary if provided
     if (req.file) {
       image = await uploadOnCloudinary(req.file.path);
-
-      if (!image) {
-        console.warn("Image upload failed or was skipped. Creating post without image.");
-      }
     }
 
     const post = await Post.create({
@@ -38,6 +29,12 @@ export const postCreate = async (req, res) => {
       content,
       image,
       authorId: req.userId,
+    });
+
+    await User.findByIdAndUpdate(req.userId, {
+      $push: {
+        posts: post._id,
+      },
     });
 
     const populatedPost = await Post.findById(post._id).populate(
@@ -50,7 +47,7 @@ export const postCreate = async (req, res) => {
       post: populatedPost,
     });
   } catch (error) {
-    console.error("Error in creating post:", error);
+    console.log(error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -58,9 +55,6 @@ export const postCreate = async (req, res) => {
   }
 };
 
-
-
-// GET ALL POSTS
 export const getAllPsot = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -72,7 +66,7 @@ export const getAllPsot = async (req, res) => {
       posts,
     });
   } catch (error) {
-    console.log("Error in getting all posts:", error);
+    console.log(error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -81,13 +75,12 @@ export const getAllPsot = async (req, res) => {
 };
 
 
-// GET POST BY ID
 export const getPostbyId = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const post = await Post.findById(id)
-      .populate("authorId", "name email");
+    const post = await Post.findById(req.params.id).populate(
+      "authorId",
+      "name email"
+    );
 
     if (!post) {
       return res.status(404).json({
@@ -100,7 +93,7 @@ export const getPostbyId = async (req, res) => {
       post,
     });
   } catch (error) {
-    console.log("Error in getting post by id:", error);
+    console.log(error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -108,8 +101,6 @@ export const getPostbyId = async (req, res) => {
   }
 };
 
-
-// GET TOP 3 RECENT POSTS
 export const getTopRecentPosts = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -122,7 +113,7 @@ export const getTopRecentPosts = async (req, res) => {
       posts,
     });
   } catch (error) {
-    console.log("Error in getting top recent posts:", error);
+    console.log(error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -131,20 +122,17 @@ export const getTopRecentPosts = async (req, res) => {
 };
 
 
-// UPDATE POST
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content } = req.body;
 
-    // Check authentication
     if (!req.userId) {
       return res.status(401).json({
         message: "User not authenticated",
       });
     }
 
-    // Find post
     const post = await Post.findById(id);
 
     if (!post) {
@@ -153,27 +141,38 @@ export const updatePost = async (req, res) => {
       });
     }
 
-    // Check if logged-in user is the post owner
     if (post.authorId.toString() !== req.userId.toString()) {
       return res.status(403).json({
         message: "You are not allowed to update this post",
       });
     }
 
-    // Update only provided fields
-    if (title !== undefined) {
+    if (title) {
       post.title = title;
     }
 
-    if (content !== undefined) {
+    if (content) {
       post.content = content;
+    }
+
+    if (req.file) {
+      const image = await uploadOnCloudinary(req.file.path);
+
+      if (image) {
+        post.image = image;
+      }
     }
 
     await post.save();
 
+    const updatedPost = await Post.findById(post._id).populate(
+      "authorId",
+      "name email"
+    );
+
     return res.status(200).json({
       message: "Post updated successfully",
-      post,
+      post: updatedPost,
     });
   } catch (error) {
     console.log("Error in updating post:", error);
@@ -184,21 +183,16 @@ export const updatePost = async (req, res) => {
   }
 };
 
-
-// DELETE POST
-
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check authentication
     if (!req.userId) {
       return res.status(401).json({
         message: "User not authenticated",
       });
     }
 
-    // Find post
     const post = await Post.findById(id);
 
     if (!post) {
@@ -207,15 +201,19 @@ export const deletePost = async (req, res) => {
       });
     }
 
-    // Check if logged-in user is the post owner
     if (post.authorId.toString() !== req.userId.toString()) {
       return res.status(403).json({
         message: "You are not allowed to delete this post",
       });
     }
 
-    // Delete post
     await Post.findByIdAndDelete(id);
+
+    await User.findByIdAndUpdate(req.userId, {
+      $pull: {
+        posts: id,
+      },
+    });
 
     return res.status(200).json({
       message: "Post deleted successfully",
