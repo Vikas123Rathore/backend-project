@@ -101,8 +101,27 @@ export const getPostbyId = async (req, res) => {
   }
 };
 
+export const getTopRecentPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("authorId", "name email")
+      .sort({ createdAt: -1 })
+      .limit(3);
 
-// updating post controller
+    return res.status(200).json({
+      message: "Top recent posts fetched successfully",
+      posts,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -110,7 +129,7 @@ export const updatePost = async (req, res) => {
 
     if (!req.userId) {
       return res.status(401).json({
-        message: "Please login account first",
+        message: "User not authenticated",
       });
     }
 
@@ -163,7 +182,7 @@ export const updatePost = async (req, res) => {
     });
   }
 };
-// delete post controller
+
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;

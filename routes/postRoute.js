@@ -4,6 +4,7 @@ import {
   postCreate,
   getAllPsot,
   getPostbyId,
+  getTopRecentPosts,
   updatePost,
   deletePost,
 } from "../controllers/postController.js";
@@ -11,41 +12,33 @@ import {
 import { protect } from "../middleware/authMiddleware.js";
 import fileUpload from "../middleware/upload.js";
 
+
 const router = express.Router();
 
-// Create a new post
-router.post(
-  "/",
-  protect,
-  fileUpload,
-  postCreate
+
+// CREATE POST
+router.post("/", protect, fileUpload, postCreate);
+
+
+// UPDATE POST
+router.put("/:id", protect, fileUpload, updatePost);
+
+
+// DELETE POST
+router.delete("/:id", protect, deletePost);
+
+
+// GET ALL POSTS
+router.get("/", getAllPsot);
+
+
+// TOP POSTS
+router.get("/top", getTopRecentPosts);
+
+
+// SINGLE POST
+router.get("/:id", getPostbyId
 );
 
-// Update an existing post
-router.put(
-  "/:id",
-  protect,
-  fileUpload,
-  updatePost
-);
-
-// Delete a post
-router.delete(
-  "/:id",
-  protect,
-  deletePost
-);
-
-// Get all posts
-router.get(
-  "/",
-  getAllPsot
-);
-
-// Get a single post by id
-router.get(
-  "/:id",
-  getPostbyId
-);
 
 export default router;
